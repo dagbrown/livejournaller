@@ -122,7 +122,7 @@ class LiveJournal
     # Post an item to livejournal
     # Required fields are +subject+ and +text+
     # Optional fields date, mood, music, 
-    def post subject, text, options => {}
+    def post subject, text, options = {}
         date = if options[:date] then
             DateTime.parse(options[:date])
         else
@@ -137,7 +137,7 @@ class LiveJournal
             :day => date.day,
             :hour => date.hour,
             :min => date.minute,
-            :lineendings => "unix"
+            :lineendings => "unix",
             :props => {}
         }
 
@@ -145,7 +145,7 @@ class LiveJournal
             callhash[:security]=options[:security]
         end
 
-        { 
+        {
             :mood => :current_mood,
             :music => :current_music,
             :preformatted => :opt_preformatted,
