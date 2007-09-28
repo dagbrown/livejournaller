@@ -1,14 +1,18 @@
 #!/usr/bin/ruby
 
-LJPOSTDIR=ENV["HOME"]+"/.ljpost"
+LJPOSTDIR = File.join(ENV["HOME"],"/.ljpost")
+LIVEJOURNALRC = File.join(ENV["HOME"],".livejournal.rc")
 # CLIVE="/home/dagbrown/bin/clive"
-CLIVE="/opt/bin/clive"
+# CLIVE="/opt/bin/clive"
 
+require "livejournal"
 require "tempfile"
 require "yaml"
 require "open3"
 
-outgoingdir=LJPOSTDIR+"/outgoing"
+outgoingdir = File.join(LJPOSTDIR,"/outgoing")
+sentdir = File.join(LJPOSTDIR,"sent")
+ljparams = YAML.load(File.read(LIVEJOURNALRC))
 
 Dir.open("#{outgoingdir}") do |d|
     d.each do |filename|
@@ -19,40 +23,33 @@ Dir.open("#{outgoingdir}") do |d|
                 posting[key]=value
             end
 
-            clivecommand = [ CLIVE, "-p" ]
+            opts = {}
 
-            if posting["Mood"] != "" then
-                clivecommand << "--mood"
-                clivecommand << posting["Mood"]
-            end
-
-            if posting["Music"] != "" then
-                clivecommand << "-m"
-                clivecommand << posting["Music"]
-            end
-
-            if posting["Userpic"] != "" then
-                clivecommand << "-i"
-                clivecommand << posting["Userpic"]
-            end
-
-            if posting["Subject"] != "" then
-                clivecommand << "-s"
-                clivecommand << posting["Subject"]
+            { 
+                "Mood" => :mood,
+                "Music" => :music,
+                "Userpic" => :picture,
+                "Security" => :security
+            }.each do |header, option|
+                if posting[header] != "" then
+                    opts[option] = posting[header]
+                end
             end
 
             if posting["Date"] != "" then
-                clivecommand << "--backdate"
                 unless posting["Date"].respond_to? :strftime
-                    posting["Date"] = Time.parse(posting["Date"])
+                    posting["Date"] = DateTime.parse(posting["Date"])
                 end
-                clivecommand << posting["Date"].strftime("%Y%m%d%H%M")
+                opts[:date] = posting["Date"]
             end
-            puts clivecommand.map {|e| '"'+e+'"' }.join(" ")
-            clive_stdin,clive_stdout,clive_stderr=Open3::popen3(*clivecommand)
-            clive_stdin.puts(posting["Body"]);
-            clive_stdin.close
-            puts clive_stdout.read
+
+            lj=LiveJournal.new ljparams["user"], ljparams["password"]
+            retval = lj.post posting["Subject"], posting["Body"], opts
+
+            if retval["anum"] then
+                puts "Successfully posted item #{retval["anum"]} to LiveJournal."
+                File.rename pathname, File.join(sentdir,filename)
+            end
         end
     end
 end
