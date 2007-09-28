@@ -1,11 +1,12 @@
 #!/usr/bin/ruby
 
+require "rubygems"
+gem "hpricot"
 
 require "xmlrpc/client"
 require "md5"
-gem "hpricot"
-require "hpricot"
 require "yaml"
+require "hpricot"
 
 class LiveJournal
     private
@@ -124,10 +125,15 @@ class LiveJournal
     # Optional fields date, mood, music, 
     def post subject, text, options = {}
         date = if options[:date] then
-            DateTime.parse(options[:date])
-        else
-            DateTime.now
-        end
+                   if String === options[:date] then
+                       DateTime.parse(options[:date])
+                   else
+                       options[:date]
+                   end
+               else
+                   DateTime.now
+               end
+
 
         callhash = {
             :event => text,
@@ -136,7 +142,7 @@ class LiveJournal
             :mon => date.month,
             :day => date.day,
             :hour => date.hour,
-            :min => date.minute,
+            :min => date.min,
             :lineendings => "unix",
             :props => {}
         }
@@ -153,8 +159,8 @@ class LiveJournal
             :picture => :picture_keyword,
             :noemail => :opt_noemail
         }.each do |option_name, lj_option_name|
-            if options[:option_name] then
-                callhash[:props][lj_option_name] = options[:option_name]
+            if options[option_name] then
+                callhash[:props][lj_option_name] = options[option_name]
             end
         end
 
