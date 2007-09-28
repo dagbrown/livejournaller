@@ -1,0 +1,58 @@
+#!/usr/bin/ruby
+
+LJPOSTDIR=ENV["HOME"]+"/.ljpost"
+# CLIVE="/home/dagbrown/bin/clive"
+CLIVE="/opt/bin/clive"
+
+require "tempfile"
+require "yaml"
+require "open3"
+
+outgoingdir=LJPOSTDIR+"/outgoing"
+
+Dir.open("#{outgoingdir}") do |d|
+    d.each do |filename|
+        pathname="#{outgoingdir}/#{filename}"
+        if File.stat(pathname).file?
+            posting=Hash.new("")
+            YAML.load(File.read(pathname)).each_pair do |key,value|
+                posting[key]=value
+            end
+
+            clivecommand = [ CLIVE, "-p" ]
+
+            if posting["Mood"] != "" then
+                clivecommand << "--mood"
+                clivecommand << posting["Mood"]
+            end
+
+            if posting["Music"] != "" then
+                clivecommand << "-m"
+                clivecommand << posting["Music"]
+            end
+
+            if posting["Userpic"] != "" then
+                clivecommand << "-i"
+                clivecommand << posting["Userpic"]
+            end
+
+            if posting["Subject"] != "" then
+                clivecommand << "-s"
+                clivecommand << posting["Subject"]
+            end
+
+            if posting["Date"] != "" then
+                clivecommand << "--backdate"
+                unless posting["Date"].respond_to? :strftime
+                    posting["Date"] = Time.parse(posting["Date"])
+                end
+                clivecommand << posting["Date"].strftime("%Y%m%d%H%M")
+            end
+            puts clivecommand.map {|e| '"'+e+'"' }.join(" ")
+            clive_stdin,clive_stdout,clive_stderr=Open3::popen3(*clivecommand)
+            clive_stdin.puts(posting["Body"]);
+            clive_stdin.close
+            puts clive_stdout.read
+        end
+    end
+end
