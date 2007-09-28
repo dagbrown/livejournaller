@@ -7,7 +7,7 @@ gem "hpricot"
 require "hpricot"
 require "yaml"
 
-class LJ
+class LiveJournal
     private
 
     def get_challenge
@@ -158,10 +158,7 @@ class LJ
             end
         end
 
-        if options[:
-
         postevent callhash
-
     end
 
     def comments
