@@ -84,7 +84,7 @@ class LiveJournal
       "ljsession=#{@sessioncookie["ljsession"]}"
     end
 
-    def comment_summaries start_id=0
+    def comment_summaries start_id = 0
       @restful_ish_client_headers["Cookie"] ||= sessioncookie
       unless @comments
         @restful_ish_client.start do
@@ -201,8 +201,8 @@ class LiveJournal
 #         end
     end
 
-    def poster posterid
-        comment_summaries
+    def poster posterid, start_id = 0
+        comment_summaries start_id
         @usermap[posterid.to_s]
     end
 end
