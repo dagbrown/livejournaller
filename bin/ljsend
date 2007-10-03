@@ -2,10 +2,8 @@
 
 LJPOSTDIR = File.join(ENV["HOME"],"/.ljpost")
 LIVEJOURNALRC = File.join(ENV["HOME"],".livejournal.rc")
-# CLIVE="/home/dagbrown/bin/clive"
-# CLIVE="/opt/bin/clive"
 
-require "livejournal"
+require "livejournaller"
 require "tempfile"
 require "yaml"
 require "open3"
@@ -43,7 +41,7 @@ Dir.open("#{outgoingdir}") do |d|
                 opts[:date] = posting["Date"]
             end
 
-            lj=LiveJournal.new ljparams["user"], ljparams["password"]
+            lj=LiveJournaller.new ljparams["user"], ljparams["password"]
             retval = lj.post posting["Subject"], posting["Body"], opts
 
             if retval["anum"] then

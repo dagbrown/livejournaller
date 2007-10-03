@@ -8,7 +8,7 @@ require "md5"
 require "yaml"
 require "hpricot"
 
-class LiveJournal
+class LiveJournaller
     private
 
     def get_challenge
