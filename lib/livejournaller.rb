@@ -164,48 +164,7 @@ class LiveJournaller
             end
         end
 
-        [ :opt_nocomments, :opt_preformatted, :opt_backdated, 
-            :opt_noemail, :hasscreened ].each do |boolean_option_name|
-            if Boolean === callhash[:props][boolean_option_name] then
-                callhash[:props][boolean_option_name] = 
-                    callhash[:props][boolean_option_name] ? 1 : 0
-            end
-        end
         postevent callhash
-    end
-
-    def comments
-        puts "exporting comments"
-        c = export_comments
-        puts "parsing comment XML"
-        r = REXML::Document.new c
-
-        my_comments = r.elements.each("//comment") {}
-#         my_comments = r.elements.each("//comment") {}.map do |comment|
-#             puts comment.to_s
-#             id = comment.attributes["id"].to_i
-#             puts "doing comment #{id}"
-#             cachefilename = File.join(@comment_cache_dir, "#{id}.yaml")
-#             if File.exists?(cachefilename)
-#                 YAML.load File.read(cachefilename)
-#             else
-#                 dumpme = { 
-#                     :id => comment.attributes["id"].to_i,
-#                     :poster => poster(comment.attributes["posterid"]),
-#                     :entry_id => comment.attributes["jitemid"].to_i,
-#                     :parent_id => comment.attributes["parentid"].to_i,
-#                     :subject => comment.elements["//subject"].text,
-#                     :body => comment.elements["//body"].text,
-#                     :date => DateTime.parse(comment.elements["//date"].text)
-#                 }
-#                 p dumpme
-# 
-#                 File.open(cachefilename,"w") do |f|
-#                     f.print YAML.dump(dumpme)
-#                 end
-#                 dumpme
-#             end
-#         end
     end
 
     def poster posterid, start_id = 0
