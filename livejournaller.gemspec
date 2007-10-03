@@ -18,8 +18,9 @@ spec = Gem::Specification.new do |s|
     # s.homepage = "http://www.rubyforge.org/projects/gurgitate-mail/"
     # s.rubyforge_project = "gurgitate-mail"
 
-    s.files = Dir.glob("lib/*.rb").delete_if { |item| item.include?("CVS") }
+    s.files = Dir.glob("lib/*.rb")
     s.files += Dir.glob("bin/*")
+    s.files += Dir.glob("share/*")
 
     # Load-time details: library and application
     s.require_path = 'lib'                 # Use these for libraries.
