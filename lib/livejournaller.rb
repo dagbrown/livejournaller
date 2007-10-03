@@ -164,6 +164,12 @@ class LiveJournaller
             end
         end
 
+        [ :opt_nocomments, :opt_preformatted, :opt_backdated, 
+            :opt_noemail, :hasscreened ].each do |boolean_option_name|
+            if Boolean === callhash[:props][boolean_option_name] then
+                callhash[:props][boolean_option_name] = 
+                    callhash[:props][boolean_option_name] ? 1 : 0
+            end
         postevent callhash
     end
 
