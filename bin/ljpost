@@ -1,20 +1,28 @@
 #!/opt/bin/ruby
 
-LJPOSTDIR=ENV["HOME"]+"/.ljpost"
+LJPOSTDIR=File.join(ENV["HOME"],"/.ljpost")
+
+if not File.exists?(LJPOSTDIR)
+    Dir.mkdir(LJPOSTDIR)
+    Dir.mkdir File.join(LJPOSTDIR,"outgoing")
+    Dir.mkdir File.join(LJPOSTDIR,"sent")
+end
 
 require "tempfile"
 require "yaml"
 require "time"
 
+template=File.join(File.dirname(File.dirname(__FILE__)),"template")
+
 t=Tempfile.new("ljpost")
-t.write(File.read("#{LJPOSTDIR}/template"))
+t.write(File.read(template))
 t.close
+
 system(ENV["VISUAL"],t.path)
 
 fh=File.open(t.path,File::RDONLY)
 
 text=fh.read
-# (headertext,bodytext)=t.read.split(/^--------$/,2);
 (headertext,bodytext)=text.split(/^--text follows this line--$/,2);
 headers=Hash.new
 headertext.split(/\n/).each do |line|
@@ -28,6 +36,13 @@ if headers["Date"] != "" then
 else
     headers["Date"]=Time.now
 end
+
+# convert "Preformatted" boolean tag to actual boolean
+headers["Preformatted"] = { 
+    ?t => true, 
+    ?y => true, 
+    ?f => false, 
+    ?n => false } [ headers["Preformatted"].downcase[0] ]
 
 File.open("#{LJPOSTDIR}/outgoing/"+headers["Date"].strftime("%Y%m%d%H%M%S"),
           "w") do |f|
