@@ -25,9 +25,10 @@ Dir.open("#{outgoingdir}") do |d|
 
             { 
                 "Mood" => :mood,
-                "Music" => :music,
+                "Music" => :current_music,
                 "Userpic" => :picture,
-                "Security" => :security
+                "Security" => :security,
+                "Preformatted" => :preformatted,
             }.each do |header, option|
                 if posting[header] != "" then
                     opts[option] = posting[header]
