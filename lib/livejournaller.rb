@@ -170,6 +170,7 @@ class LiveJournaller
                 callhash[:props][boolean_option_name] = 
                     callhash[:props][boolean_option_name] ? 1 : 0
             end
+        end
         postevent callhash
     end
 
