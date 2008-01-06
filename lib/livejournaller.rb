@@ -11,6 +11,8 @@ require "hpricot"
 class LiveJournaller
     private
 
+    # Handles the challenge-response sequence before LiveJournal lets
+    # you call an API method.
     def get_challenge
         result = @client.call("LJ.XMLRPC.getchallenge")
         challenge = result["challenge"]
@@ -20,6 +22,10 @@ class LiveJournaller
         @paramhash["auth_response"] = response
     end
 
+    # Calls a LiveJournal function name after handling the challenge
+    # that LJ goes through before you're allowed to use the API.
+    #
+    # This is a low-level support method.
     def ljcall(ljfnname,params = {})
         get_challenge
         paramhash = @paramhash.merge Hash[*(params.map do |a,b| 
@@ -30,6 +36,19 @@ class LiveJournaller
 
     public
 
+    # Creates a new LiveJournaller object.
+    #
+    # The parameters are your username, your password, and optionally
+    # a server.  So, for instance, you could say:
+    #
+    #     lj = LiveJournaller.new("myusername", "mypassword")
+    #
+    # to log into LiveJournal, or alternatively you could say
+    #
+    #     gj = LiveJournaller.new("myusername, "mypassword",
+    #                             "www.greatestjournal.com")
+    #
+    # to log into Greatest Journal.
     def initialize(user, password, server="www.livejournal.com")
         @client = XMLRPC::Client.new server, "/interface/xmlrpc"
         @user = user
@@ -49,6 +68,9 @@ class LiveJournaller
 
     attr_reader :logindetails
 
+    # Defines a LiveJournal API function as a method, for those
+    # LiveJournal APIs that I figure it's safe to just define
+    # explicitly.
     def self.lj_api *meths
         meths.each do |meth|
             eval %[
@@ -64,26 +86,33 @@ class LiveJournaller
         :getfriendgroups, :login, :postevent, :sessionexpire,
         :sessiongenerate, :syncitems
 
+    # Returns a hash of your user details
     def user_details; @user_details ||= login end
+
+    # Returns an array of your friend groups.
     def friendgroups; user_details["friendgroups"] end
 
+    # Returns a list of all items you posted ever.
     def all_items
         @allitems ||= syncitems :lastsync => "1970-01-01 00:00:00"
     end
 
     def friends; @friends ||= getfriends["friends"] end
 
+    # Returns a livejournal entry with id +id+.
     def item id
         ljcall :getevents, :selecttype => "one",
             :lastsync => "1970-01-01 00:00:00",
             :itemid => id
     end
 
+    private
     def sessioncookie
       @sessioncookie ||= sessiongenerate
       "ljsession=#{@sessioncookie["ljsession"]}"
     end
 
+    public
     def comment_summaries start_id = 0
       @restful_ish_client_headers["Cookie"] ||= sessioncookie
       unless @comments
@@ -122,7 +151,8 @@ class LiveJournaller
 
     # Post an item to livejournal
     # Required fields are +subject+ and +text+
-    # Optional fields date, mood, music, 
+    # Optional fields: date, mood, music, preformatted, nocomments, picture,
+    #                  noemail
     def post subject, text, options = {}
         date = if options[:date] then
                    if String === options[:date] then
