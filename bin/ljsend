@@ -28,11 +28,18 @@ Dir.open("#{outgoingdir}") do |d|
                 "Music" => :current_music,
                 "Userpic" => :picture,
                 "Security" => :security,
-                "Preformatted" => :preformatted,
+                "Preformatted" => :preformatted
             }.each do |header, option|
                 if posting[header] != "" then
                     opts[option] = posting[header]
                 end
+            end
+
+            if opts.has_key? "Backdate" then
+                if opts["Backdate"] then
+                    opts["opt_backdated"] = true
+                end
+                opts.delete "Backdate"
             end
 
             if posting["Date"] != "" then

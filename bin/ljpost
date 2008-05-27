@@ -33,6 +33,7 @@ headers["Body"]=bodytext
 
 if headers["Date"] != "" then
     headers["Date"]=Time.parse(headers["Date"])
+    headers["Backdate"] = true
 else
     headers["Date"]=Time.now
 end
