@@ -187,7 +187,8 @@ class LiveJournaller
             :preformatted => :opt_preformatted,
             :nocomments => :opt_nocomments,
             :picture => :picture_keyword,
-            :noemail => :opt_noemail
+            :noemail => :opt_noemail,
+            :backdated => :opt_backdated
         }.each do |option_name, lj_option_name|
             if options[option_name] then
                 callhash[:props][lj_option_name] = options[option_name]
