@@ -4,7 +4,7 @@ require "rubygems"
 gem "hpricot"
 
 require "xmlrpc/client"
-require "md5"
+require "digest/md5"
 require "yaml"
 require "hpricot"
 
